@@ -1,0 +1,1 @@
+import type { VTEC } from "../types/VTEC";
