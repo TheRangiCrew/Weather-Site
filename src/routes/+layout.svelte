@@ -19,12 +19,13 @@
 	  		.channel('any')
 	  		.on('postgres_changes', { event: '*', schema: 'public', table: 'Alerts' }, async (payload: RealtimePostgresChangesPayload<Alerts>) => {
 	    		if (Object.keys(payload).length != 0) {
-				console.log("Change received!")
-	        	invalidate("/api/AlertData")
-				alerts.set(data.phenomena);
-				const index = $alerts.findIndex(e => e.code === payload.new.vtecPhenomena)
-        		const alert = $alerts[index].Alerts.find(e => e.id === payload.new.id);
-        		createNotification(alert as NotificationAlert)
+				console.log("Change received!", payload.eventType)
+	        	invalidate("/api/AlertData").then(() => {
+					alerts.set(data.phenomena);
+					const index = data.phenomena.findIndex(e => e.code === payload.new.vtecPhenomena)
+					const alert = data.phenomena[index].Alerts.find(e => e.id === payload.new.id);
+					createNotification(alert as NotificationAlert)
+				})
 	    	}
 		})
 		.subscribe()
