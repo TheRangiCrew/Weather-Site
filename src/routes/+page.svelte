@@ -7,14 +7,10 @@
     import {faCloudHail, faFileLines, faHouseChimneyCrack, faTornado, faWind, faXmark} from '@fortawesome/pro-regular-svg-icons'
 	import WarningStats from "$lib/components/WarningStats.svelte";
 
-    export let data: PageServerData
-
-    alerts.set(data.phenomena)
-
     const setAlertCount = (): number => {
         let count = 0
 
-        data.phenomena.forEach(e => {
+        $alerts.forEach(e => {
             count += e.Alerts.length;
         })
 
@@ -32,7 +28,6 @@
     let alertCount = setAlertCount();
 
     const unsubscribe = alerts.subscribe((e) => {
-        data.phenomena = $alerts
         alertCount = setAlertCount();
     })
 
@@ -48,7 +43,7 @@
     <div class="w-3/4">
         <h1>{alertCount} Alerts</h1>
         <div>
-            {#each data.phenomena as phenomena}
+            {#each $alerts as phenomena}
                 <div class="mt-2">{phenomena.name} - {phenomena.Alerts.length}</div>
                 <div class="mr-4 shadow-md">
                     {#each phenomena.Alerts as alert}
