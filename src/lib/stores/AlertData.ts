@@ -5,7 +5,11 @@ import { writable, type Writable } from "svelte/store";
 import type { AlertDataDB } from "../../routes/api/AlertData/getPhenomena";
 import { type NotificationAlert, createNotification } from "./Notifications";
 
-export const alerts: Writable<AlertDataDB> = writable(await (await fetch('http://localhost:5173/api/AlertData')).json())
+export const alerts: Writable<AlertDataDB> = writable([])
+
+export const load = async () => {
+  alerts.set(await (await fetch('/api/AlertData')).json())
+}
 
 const channel = supabase
   .channel('any')
