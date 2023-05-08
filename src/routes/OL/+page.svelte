@@ -36,8 +36,10 @@
 						const polygonFeature = new Feature({
 							geometry: new Polygon([
 								geometry.map((coordinate: [number, number]) => {
-									coordinate[1] = 0 - coordinate[1]
-									return fromLonLat(coordinate.reverse());
+									if (coordinate[1] > 0) {
+										coordinate[1] = 0 - coordinate[1]
+									}
+									return fromLonLat([coordinate[1], coordinate[0]]);
 								})
 							]),
 						});
