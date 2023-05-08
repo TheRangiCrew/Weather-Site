@@ -69,7 +69,7 @@
 			target: mapContainer,
 			view: new View({
 				center: fromLonLat([-95, 38]),
-				zoom: 16
+				zoom: 5
 			})
 		});
 
