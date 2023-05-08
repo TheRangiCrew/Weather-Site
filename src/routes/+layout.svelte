@@ -1,8 +1,40 @@
 <script lang="ts">
 	import Toast from "$lib/components/Toast.svelte";
-	import { notifications } from "$lib/stores/Notifications";
-	
+	import { createNotification, notifications, type NotificationAlert } from "$lib/stores/Notifications";
 	import "../app.css";
+	import { alerts } from "$lib/stores/AlertData";
+	import type { LayoutServerData } from "./$types";
+	import { onDestroy, onMount } from "svelte";
+	import { invalidate } from "$app/navigation";
+	import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+	import type { Alerts } from "@prisma/client";
+	import supabase from "$lib/supabase";
+
+	export let data: LayoutServerData
+
+	alerts.set(data.phenomena);
+
+	onMount(() => {
+		const channel = supabase
+	  		.channel('any')
+	  		.on('postgres_changes', { event: '*', schema: 'public', table: 'Alerts' }, async (payload: RealtimePostgresChangesPayload<Alerts>) => {
+	    		if (Object.keys(payload).length != 0) {
+				console.log("Change received!")
+	        	invalidate("/api/AlertData")
+				alerts.set(data.phenomena);
+				const index = $alerts.findIndex(e => e.code === payload.new.vtecPhenomena)
+        		const alert = $alerts[index].Alerts.find(e => e.id === payload.new.id);
+        		createNotification(alert as NotificationAlert)
+	    	}
+		})
+		.subscribe()
+	})
+
+	const unsubscribe = alerts.subscribe((e) => {
+
+	})
+
+	onDestroy(unsubscribe);
 </script>
 
 <div class="w-screen h-full min-h-screen bg-neutral-900 text-white">
