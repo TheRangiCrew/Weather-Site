@@ -27,16 +27,12 @@
         
         map.on('load', () => {
 
-            console.log($alerts)
-
             $alerts.forEach((phenomena) => {
                 phenomena.Alerts.forEach((alert) => {
                     alert.AlertHistory.forEach((historical) => {
                         const geometry: number[][] = typeof historical.geometry === 'string' ? JSON.parse(historical.geometry) : historical.geometry;
 
-                        console.log(geometry)
                         geometry.push(geometry[0])
-                        console.log(geometry)
 
                         geojson.features.push({
                             'type': 'Feature',
@@ -61,8 +57,6 @@
                 'type': 'geojson',
                 'data': geojson
             })
-
-            console.log(geojson)
              
             map.addLayer({
                 'id': 'FF',
@@ -113,8 +107,6 @@
             });
 
         })
-
-        console.log(map.getLayer("SV"))
     })
 
     // const unsubscribe = alerts.subscribe((e) => {

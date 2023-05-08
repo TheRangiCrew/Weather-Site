@@ -63,7 +63,6 @@
                             <div class="w-1/12 text-end">
                                 <button on:click={() => {
                                     textModal = {show: true, text: alert.AlertHistory[0].text}
-                                    console.log("Clicked")
                                     }}><Icon data={faFileLines}/></button>
                             </div>
                         </div>

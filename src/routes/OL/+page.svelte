@@ -41,8 +41,6 @@
 								})
 							]),
 						});
-
-						console.log(polygonFeature)
 		
 						polygonFeature.setId(alert.id)
 		
@@ -79,7 +77,6 @@
 
 		map.on('click', (event) => {
 			const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => {return feature});
-			console.log(feature?.getId())
 		});
 
 		updateMap();
