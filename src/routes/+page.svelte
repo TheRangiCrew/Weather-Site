@@ -40,7 +40,7 @@
 </script>
 
 <div class="w-full h-full flex justify-center items-center">
-    <div class="w-3/4">
+    <div class="w-full lg:w-3/4">
         <h1>{alertCount} Alerts</h1>
         <div>
             {#each $alerts as phenomena}
@@ -78,7 +78,7 @@
 
 {#if textModal.show}
     <div class="absolute h-screen w-screen bg-neutral-900/30 flex justify-center items-center top-0 left-0 z-50">
-        <div class="bg-black h-3/4 w-1/2 p-2 rounded whitespace-pre-line text-sm overflow-scroll leading-3">
+        <div class="bg-black h-3/4 w-full md:w-3/4 lg:w-1/2 p-2 rounded whitespace-pre-line text-sm overflow-scroll leading-3">
             <div class="sticky top-0 text-end"><button class="bg-neutral-800 rounded p-1" on:click={() => {textModal.show = false}}><Icon data={faXmark} /></button></div>
             <p>{@html textModal.text}</p>
         </div>
