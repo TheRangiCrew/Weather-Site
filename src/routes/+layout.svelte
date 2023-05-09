@@ -24,7 +24,9 @@
 					alerts.set(data.phenomena);
 					const index = data.phenomena.findIndex(e => e.code === payload.new.vtecPhenomena)
 					const alert = data.phenomena[index].Alerts.find(e => e.id === payload.new.id);
-					createNotification(alert as NotificationAlert)
+					if (alert != undefined) {
+						createNotification(alert as NotificationAlert)
+					}
 				})
 	    	}
 		})
