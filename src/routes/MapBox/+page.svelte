@@ -160,7 +160,7 @@
                                     <button class="p-2" on:click={() => {
                                         map.easeTo({
                                         center: getCoords(typeof alert.AlertHistory[0].geometry === 'string' ? JSON.parse(alert.AlertHistory[0].geometry) : alert.AlertHistory[0].geometry),
-                                        zoom: 9
+                                        zoom: 8
                                     })
                                     }}><Icon data={faLocationCrosshairs} /></button>
                                 </div>
