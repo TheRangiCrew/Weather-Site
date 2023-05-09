@@ -1,13 +1,15 @@
 <script lang="ts">
-	import { alerts } from '$lib/stores/AlertData';
+	import { alerts } from '$lib/stores/Alerts';
     import mapboxgl, { Map } from 'mapbox-gl'; // or "const mapboxgl = require('mapbox-gl');"
 	import { onDestroy, onMount } from 'svelte';
 	import type { AlertDataDB } from '../api/AlertData/getPhenomena';
+	import type { Prisma } from '@prisma/client';
+	import { element } from 'svelte/internal';
+	import { Icon } from 'svelte-awesome';
+	import { faLocationCrosshairs } from '@fortawesome/pro-regular-svg-icons';
 
     let map: Map
     let mapContainer: HTMLElement;
-
-    let data: AlertDataDB = $alerts;
 
     let geojson = {
         'type': 'FeatureCollection',
@@ -17,7 +19,7 @@
     const updateData = () => {
         geojson.features = [];
 
-        $alerts.forEach((phenomena) => {
+        $alerts.data.forEach((phenomena) => {
             phenomena.Alerts.forEach((alert) => {
                 const current = alert.AlertHistory[0]
                     const geometry: number[][] = typeof current.geometry === 'string' ? JSON.parse(current.geometry) : current.geometry;
@@ -117,6 +119,21 @@
         })
     })
 
+    const getCoords = (data: number[][]): [number, number] => {
+        let g1 = 0;
+        let g2 = 0;
+
+        data.forEach((element) => {
+            if (element[1] > 0) {
+                element[1] = 0 - element[1]
+            }
+            g2 += element[0]
+            g1 += element[1]
+        })
+
+        return [(g1/data.length), (g2/data.length)]
+    }
+
     const unsubscribe = alerts.subscribe((e) => {
         if (map != undefined) {
             updateData()
@@ -126,7 +143,41 @@
     onDestroy(unsubscribe);
 </script>
 
-<div class="view" bind:this={mapContainer} />
+<div class="relative">
+    <div class="absolute top-4 mx-4 text-white bg-neutral-900 rounded w-5/6 md:w-1/6">
+        <div class="w-full border-b border-neutral-700 px-2 py-2 text-lg">
+            {$alerts.count} {$alerts.count === 1 ? "alert" : "alerts"}
+        </div>
+        <div class="max-h-52 overflow-scroll">
+            {#each $alerts.data as phenomena}
+                {#if phenomena.Alerts.length > 0}
+                    <div class="text-white bg-red-800 px-2">{phenomena.name}</div>
+                    {#each phenomena.Alerts as alert}
+                        <div class="bg-neutral-800 border-b border-neutral-700">
+                            <div class="flex justify-center items-center">
+                                <div></div>
+                                <div>
+                                    <button class="p-2" on:click={() => {
+                                        map.easeTo({
+                                        center: getCoords(typeof alert.AlertHistory[0].geometry === 'string' ? JSON.parse(alert.AlertHistory[0].geometry) : alert.AlertHistory[0].geometry),
+                                        zoom: 9
+                                    })
+                                    }}><Icon data={faLocationCrosshairs} /></button>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap justify-start space-x-2 px-2">
+                                {#each alert.AlertHistory[0].AlertUGC as county}
+                                    <div class="bg-blue-700 font-semibold text-sm whitespace-nowrap px-1 mb-1 rounded">{county.CountyFIPS.name}, {county.CountyFIPS.StateFIPS_CountyFIPS_stateToStateFIPS.abbreviation}</div>
+                                {/each}
+                            </div>
+                        </div>
+                    {/each}
+                {/if}
+            {/each}
+        </div>
+    </div>
+    <div class="view" bind:this={mapContainer} />
+</div>
 
 <style>
 	.view {
