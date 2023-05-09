@@ -14,6 +14,37 @@
         'features': new Array
     }
 
+    const updateData = () => {
+        geojson.features = [];
+
+        $alerts.forEach((phenomena) => {
+            phenomena.Alerts.forEach((alert) => {
+                const current = alert.AlertHistory[0]
+                    const geometry: number[][] = typeof current.geometry === 'string' ? JSON.parse(current.geometry) : current.geometry;
+                    geometry.push(geometry[0])
+                    geojson.features.push({
+                        'type': 'Feature',
+                        'properties': {
+                            'phenomena': current.vtecPhenomena
+                        },
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [
+                                geometry.map((coordinate: number[]) => {
+								    if (coordinate[1] > 0) {
+								    	coordinate[1] = 0 - coordinate[1]
+								    }
+								    return [coordinate[1], coordinate[0]];
+							    })
+                            ]
+                        }
+                    })
+            })
+        })
+        
+        map.getSource('warnings').setData(geojson);
+    }
+
     onMount(() => {
         mapboxgl.accessToken = 'pk.eyJ1IjoidGhlcmFuZ2ljcmV3IiwiYSI6ImNreThhamRtaTE5ZWEycXBsc3NraTJhaXgifQ._uLbksdf1f7TVXKR4hiJXw';
     
@@ -27,36 +58,13 @@
         
         map.on('load', () => {
 
-            $alerts.forEach((phenomena) => {
-                phenomena.Alerts.forEach((alert) => {
-                    alert.AlertHistory.forEach((historical) => {
-                        const geometry: number[][] = typeof historical.geometry === 'string' ? JSON.parse(historical.geometry) : historical.geometry;
-
-                        geometry.push(geometry[0])
-
-                        geojson.features.push({
-                            'type': 'Feature',
-                            'properties': {
-                                'phenomena': historical.vtecPhenomena
-                            },
-                            'geometry': {
-                                'type': 'Polygon',
-                                'coordinates': [
-                                    geometry.map((coordinate: number[]) => {
-							    		coordinate[1] = 0 - coordinate[1]
-							    		return coordinate.reverse();
-							    	})
-                                ]
-                            }
-                        })
-                    })
-                })
-            })
-
-            map.addSource('warnings', {
+            map.addSource('warnings', { 
                 'type': 'geojson',
                 'data': geojson
             })
+
+            updateData()
+
              
             map.addLayer({
                 'id': 'FF',
@@ -65,7 +73,7 @@
                 'layout': {},
                 'paint': {
                     'line-color': '#3deb34',
-                    'line-width': 2
+                    'line-width': 2,
                 },
                 'filter': ['in', 'phenomena', 'FF']
             });
@@ -109,37 +117,13 @@
         })
     })
 
-    // const unsubscribe = alerts.subscribe((e) => {
-    //     if (map != undefined) {
-    //         geojson.features = [];
+    const unsubscribe = alerts.subscribe((e) => {
+        if (map != undefined) {
+            updateData()
+        }
+    });
 
-    //         console.log("Hello")
-
-    //         $alerts.forEach((phenomena) => {
-    //             phenomena.Alerts.forEach((alert) => {
-    //                 alert.AlertHistory.forEach((historical) => {
-    //                     const geometry = typeof historical.geometry === 'string' ? JSON.parse(historical.geometry) : historical.geometry;
-
-    //                     geojson.features.push({
-    //                         'type': 'Feature',
-    //                         'properties': {
-    //                             'phenomena': historical.vtecPhenomena
-    //                         },
-    //                         'geometry': {
-    //                             'type': 'Polygon',
-    //                             'coordinates': geometry.map((coordinate: [number, number]) => {
-	// 								coordinate[1] = 0 - coordinate[1]
-	// 								return coordinate.reverse();
-	// 							})
-    //                         }
-    //                     })
-    //                 })
-    //             })
-    //         })
-    //     }
-    // });
-
-    // onDestroy(unsubscribe);
+    onDestroy(unsubscribe);
 </script>
 
 <div class="view" bind:this={mapContainer} />
