@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {alerts} from '$lib/stores/AlertData';
+	import {alerts} from '$lib/stores/Alerts';
 	import { onDestroy, onMount } from 'svelte';
 	import 'ol/ol.css';
 	import Map from 'ol/Map';
