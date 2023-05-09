@@ -1,35 +1,21 @@
 <script lang="ts">
-	import { alerts } from "$lib/stores/AlertData";
+	import { alerts } from "$lib/stores/Alerts";
 	import { onDestroy } from "svelte";
-	import type { PageServerData } from "./$types";
     import {DateTime} from 'luxon'
     import Icon from 'svelte-awesome'
     import {faCloudHail, faFileLines, faHouseChimneyCrack, faTornado, faWind, faXmark} from '@fortawesome/pro-regular-svg-icons'
 	import WarningStats from "$lib/components/WarningStats.svelte";
+	import { clock } from "$lib/stores/Clock";
 
-    const setAlertCount = (): number => {
-        let count = 0
-
-        $alerts.forEach(e => {
-            count += e.Alerts.length;
-        })
-
-        return count
-    }
-
-    const getDateTime = (date: Date | string): DateTime => {
+    const getDateTime = (date: Date | string | null): DateTime => {
         if (typeof date === 'string') {
             return DateTime.fromISO(date)
         }
-        return DateTime.fromJSDate(date)
+        return DateTime.fromJSDate(date != null ? date : new Date());
 
     }
 
-    let alertCount = setAlertCount();
-
-    const unsubscribe = alerts.subscribe((e) => {
-        alertCount = setAlertCount();
-    })
+    const unsubscribe = alerts.subscribe(() => {})
 
     let textModal = {
         show: false,
@@ -41,36 +27,37 @@
 
 <div class="w-full h-full flex justify-center items-center">
     <div class="w-full lg:w-3/4">
-        <h1>{alertCount} Alerts</h1>
         <div>
-            {#each $alerts as phenomena}
+            {#each $alerts.data as phenomena}
+            {#if phenomena.Alerts.length > 0}
                 <div class="mt-2">{phenomena.name} - {phenomena.Alerts.length}</div>
                 <div class="mr-4 shadow-md">
                     {#each phenomena.Alerts as alert}
-                    {#if alert.AlertHistory.length > 0}
-                    <div class="">
-                        <div class="bg-red-800 w-full flex items-center px-2 py-1">
-                            <div class="w-11/12">
-                                {#each alert.AlertHistory[0].AlertUGC as county, i}
-                                    {county.CountyFIPS.name} {county.CountyFIPS.state}{#if i < alert.AlertHistory[0].AlertUGC.length - 1}{", "}{/if}
-                                {/each} until {getDateTime(alert.end != null ? alert.end : new Date()).toLocaleString({hour: '2-digit', minute: '2-digit', hour12: false})}
+                        {#if alert.AlertHistory.length > 0}
+                        <div class="">
+                            <div class="bg-red-800 w-full flex items-center px-2 py-1">
+                                <div class="w-11/12">
+                                    {#each alert.AlertHistory[0].AlertUGC as county, i}
+                                        {county.CountyFIPS.name} {county.CountyFIPS.state}{#if i < alert.AlertHistory[0].AlertUGC.length - 1}{", "}{/if}
+                                    {/each} until {getDateTime(alert.end).toLocaleString({hour: '2-digit', minute: '2-digit', hour12: false})} - {Math.floor(getDateTime(alert.end).diff($clock).as('minutes')) + (Math.floor(getDateTime(alert.end).diff($clock).as('minutes')) === 1 ? " min" : " mins")}
+                                </div>
+                                <div class="w-1/12 text-end">
+                                    <button on:click={() => {
+                                        textModal = {show: true, text: alert.AlertHistory[0].text}
+                                        }}><Icon data={faFileLines}/></button>
+                                </div>
                             </div>
-                            <div class="w-1/12 text-end">
-                                <button on:click={() => {
-                                    textModal = {show: true, text: alert.AlertHistory[0].text}
-                                    }}><Icon data={faFileLines}/></button>
+                            <div class="bg-neutral-800 px-2 py-3 flex items-center justify-around">
+                                <WarningStats icon={faCloudHail} data={alert.AlertHistory[0].hailMaxTag} />
+                                <WarningStats icon={faWind} data={alert.AlertHistory[0].windMaxTag} />
+                                <WarningStats icon={faHouseChimneyCrack} data={alert.AlertHistory[0].thunderstormThreatTag} />
+                                <WarningStats icon={faTornado} data={alert.AlertHistory[0].tornadoTag} />
                             </div>
                         </div>
-                        <div class="bg-neutral-800 px-2 py-3 flex items-center justify-around">
-                            <WarningStats icon={faCloudHail} data={alert.AlertHistory[0].hailMaxTag} />
-                            <WarningStats icon={faWind} data={alert.AlertHistory[0].windMaxTag} />
-                            <WarningStats icon={faHouseChimneyCrack} data={alert.AlertHistory[0].thunderstormThreatTag} />
-                            <WarningStats icon={faTornado} data={alert.AlertHistory[0].tornadoTag} />
-                        </div>
-                    </div>
-                    {/if}
+                        {/if}
                     {/each}
                 </div>
+                {/if}
             {/each}
         </div>
     </div>
