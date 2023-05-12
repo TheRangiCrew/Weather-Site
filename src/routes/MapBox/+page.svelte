@@ -48,6 +48,8 @@
     }
 
     onMount(() => {
+	   console.log($alerts);
+	    
         mapboxgl.accessToken = 'pk.eyJ1IjoidGhlcmFuZ2ljcmV3IiwiYSI6ImNreThhamRtaTE5ZWEycXBsc3NraTJhaXgifQ._uLbksdf1f7TVXKR4hiJXw';
     
         map = new mapboxgl.Map({
