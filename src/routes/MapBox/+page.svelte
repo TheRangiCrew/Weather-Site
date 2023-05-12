@@ -45,9 +45,7 @@
 		map.getSource('warnings').setData(geojson);
 	};
 
-    onMount(() => {
-	   console.log($alerts);
-	    
+    onMount(() => {	    
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
     
         map = new mapboxgl.Map({
