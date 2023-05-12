@@ -12,8 +12,17 @@
 	import { clock } from "$lib/stores/Clock";
 	import { Icon } from "svelte-awesome";
 	import { faMap, faTriangleExclamation } from "@fortawesome/pro-regular-svg-icons";
+	import { DateTime } from "luxon";
 
 	export let data: LayoutServerData
+
+	let ttp: {
+		data: number[],
+		ttp: number
+	} = {
+		data: [],
+		ttp: 0
+	}
 
 	setAlerts(data.phenomena)
 
@@ -29,6 +38,11 @@
 					const alert = data.phenomena[index].Alerts.find(e => e.id === payload.new.id);
 					if (alert != undefined) {
 						createNotification(alert as NotificationAlert)
+						ttp.data.push(DateTime.now().diff(DateTime.fromISO(alert.AlertHistory[0].issued)).as('seconds'))
+						let sum = 0;
+						ttp.data.forEach(e => sum += e);
+						ttp.ttp = sum/ttp.data.length;
+						console.log(ttp)
 					}
 				})
 	    	}
@@ -54,7 +68,8 @@
 			<span>{$clock.toLocaleString({month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}</span>
 		</div>
 		<div class="flex justify-end items-center space-x-4">
-			<ul class="space-x-2">
+			<ul class="space-x-4 flex items-center">
+				<li>TTP: {ttp.ttp}s</li>
 				<li>
 					<a href="/MapBox"><Icon data={faMap} class="mr-1" />Map</a>
 				</li>

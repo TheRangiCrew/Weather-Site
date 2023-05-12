@@ -3,7 +3,7 @@ import type { AlertDataDB } from "../../routes/api/AlertData/getPhenomena";
 
 export type AlertData = {
     data: AlertDataDB,
-    count: number
+    count: number,
 }
 
 export const alerts: Writable<AlertData> = writable({
@@ -20,6 +20,6 @@ export const setAlerts = (data: AlertDataDB) => {
 
     alerts.set({
         data,
-        count
+        count,
     })
 }
