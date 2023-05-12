@@ -166,9 +166,11 @@
                                 </div>
                             </div>
                             <div class="flex flex-wrap justify-start space-x-2 px-2">
+				{#if alert.AlertHistory[0].AlertUGC != undefined}
                                 {#each alert.AlertHistory[0].AlertUGC as county}
                                     <div class="bg-blue-700 font-semibold text-sm whitespace-nowrap px-1 mb-1 rounded">{county.CountyFIPS.name}, {county.CountyFIPS.StateFIPS_CountyFIPS_stateToStateFIPS.abbreviation}</div>
                                 {/each}
+				{/if}
                             </div>
                         </div>
                     {/each}
