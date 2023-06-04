@@ -38,7 +38,7 @@
 					const alert = data.phenomena[index].Alerts.find(e => e.id === payload.new.id);
 					if (alert != undefined) {
 						createNotification(alert as NotificationAlert)
-						ttp.data.push(DateTime.now().diff(DateTime.fromISO(alert.AlertHistory[0].issued)).as('seconds'))
+						ttp.data.push($clock.diff(DateTime.fromISO(alert.AlertHistory[0].issued)).as('seconds'))
 						let sum = 0;
 						ttp.data.forEach(e => sum += e);
 						ttp.ttp = sum/ttp.data.length;
