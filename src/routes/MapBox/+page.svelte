@@ -45,23 +45,35 @@
 		map.getSource('warnings').setData(geojson);
 	};
 
-    onMount(() => {	    
-        mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
-    
-        map = new mapboxgl.Map({
-            container: mapContainer, // container ID
-            style: 'mapbox://styles/therangicrew/clge6tpkw000001p7tjedk875', // style URL
-            center: [-90, 38], // starting position [lng, lat]
-            zoom: 4, // starting zoom
-            projection: {name: 'mercator'}
-        });
-        
-        map.on('load', () => {
+	const setStorage = () => {
+		const data = {
+			center: map.getCenter(),
+			zoom: map.getZoom()
+		};
 
-            map.addSource('warnings', { 
-                'type': 'geojson',
-                'data': geojson
-            })
+		localStorage.setItem('mapparams', JSON.stringify(data));
+	};
+
+	onMount(() => {
+		mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
+
+		const storedParams = JSON.parse(
+			localStorage.getItem('mapparams') ?? '{ "center": [-90, 38], "zoom": 4 }'
+		);
+
+		map = new mapboxgl.Map({
+			container: mapContainer, // container ID
+			style: 'mapbox://styles/therangicrew/clge6tpkw000001p7tjedk875', // style URL
+			center: storedParams.center, // starting position [lng, lat]
+			zoom: storedParams.zoom, // starting zoom
+			projection: { name: 'mercator' }
+		});
+
+		map.on('load', () => {
+			map.addSource('warnings', {
+				type: 'geojson',
+				data: geojson
+			});
 
 			updateData();
 
@@ -113,6 +125,9 @@
 				filter: ['in', 'phenomena', 'TO']
 			});
 		});
+
+		map.on('zoomend', setStorage);
+		map.on('dragend', setStorage);
 	});
 
 	const getCoords = (data: number[][]): [number, number] => {
